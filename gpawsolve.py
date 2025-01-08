@@ -1226,8 +1226,7 @@ class gpawsolve:
                              nbands=Opt_num_of_bands,
                              eshift=Opt_shift_en,
                              mode='BSE',
-                             write_v=True,
-                             integrate_gamma=0)
+                             integrate_gamma='sphere')
 
                 # Getting dielectric function spectrum
                 parprint("Starting dielectric function calculation...")
