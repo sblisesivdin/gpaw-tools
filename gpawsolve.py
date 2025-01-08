@@ -1222,7 +1222,8 @@ class gpawsolve:
                 bse = BSE(calc= struct+'-6-Result-Optical.gpw', ecut=Opt_cut_of_energy,
                              valence_bands=Opt_BSE_valence,
                              conduction_bands=Opt_BSE_conduction,
-                             nbands=Opt_num_of_bands, eshift=Opt_shift_en, mode='BSE',
+                             nbands=Opt_num_of_bands,
+                             mode='BSE',
                              integrate_gamma='sphere', txt=struct+'-6-Log-Optical-BSE.txt')
 
                 # Getting dielectric function spectrum
@@ -1339,15 +1340,15 @@ class gpawsolve:
                 parprint('Starting RPA calculations')
                 df = DielectricFunction(calc=struct+'-6-Result-Optical.gpw',
                                         frequencies={'type': 'nonlinear', 'domega0': Opt_domega0, 'omega2': Opt_omega2},
-                                        eta=Opt_eta,
+                                        eta=Opt_eta, intraband=False, hilbert=False,
                                         ecut=Opt_cut_of_energy, txt=struct+'-6-Log-Optical-RPA.txt')
                 # Writing to files as: omega, nlfc.real, nlfc.imag, lfc.real, lfc.imag
                 # Here lfc is local field correction
                 # Getting dielectric function spectrum
                 parprint("Starting dielectric function calculation...")
-                df.get_dielectric_function(filename=struct+'-6-Result-Optical-BSE_dielec_xdirection.csv')
-                df.get_dielectric_function(direction='y', filename=struct+'-6-Result-Optical-BSE_dielec_ydirection.csv')
-                df.get_dielectric_function(direction='z', filename=struct+'-6-Result-Optical-BSE_dielec_zdirection.csv')
+                df.get_dielectric_function(direction='x', filename=struct+'-6-Result-Optical-RPA_dielec_xdirection.csv')
+                df.get_dielectric_function(direction='y', filename=struct+'-6-Result-Optical-RPA_dielec_ydirection.csv')
+                df.get_dielectric_function(direction='z', filename=struct+'-6-Result-Optical-RPA_dielec_zdirection.csv')
 
                 # Loading dielectric function spectrum to numpy
                 dielec_x = genfromtxt(struct+'-6-Result-Optical-RPA_dielec_xdirection.csv', delimiter=',')
