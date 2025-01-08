@@ -1201,8 +1201,7 @@ class gpawsolve:
             parprint("Starting optical calculation...")
             try:
                 calc = GPAW(struct+'-1-Result-Ground.gpw').fixed_density(txt=struct+'-6-Log-Optical.txt',
-                        nbands=Opt_num_of_bands,parallel={'domain': 1, 'kpt': 1 },
-                        symmetry='off',
+                        nbands=Opt_num_of_bands,parallel={'domain': 1, 'band': 1 },
                         occupations=FermiDirac(Opt_FD_smearing))
             except FileNotFoundError as err:
                 # output error, and return with an error code
@@ -1212,7 +1211,7 @@ class gpawsolve:
             calc.get_potential_energy()
 
             calc.diagonalize_full_hamiltonian(nbands=Opt_num_of_bands)  # diagonalize Hamiltonian
-            calc.write(struct+'-6-Result-Optical.gpw', 'all')  # write wavefunctions
+            calc.write(struct+'-6-Result-Optical.gpw', mode= 'all')  # write wavefunctions
 
             #from mpi4py import MPI
             if Opt_calc_type == 'BSE':
@@ -1223,23 +1222,50 @@ class gpawsolve:
                 bse = BSE(calc= struct+'-6-Result-Optical.gpw', ecut=Opt_cut_of_energy,
                              valence_bands=Opt_BSE_valence,
                              conduction_bands=Opt_BSE_conduction,
-                             nbands=Opt_num_of_bands,
-                             eshift=Opt_shift_en,
-                             mode='BSE',
-                             integrate_gamma='sphere')
+                             nbands=Opt_num_of_bands, eshift=Opt_shift_en, mode='BSE',
+                             integrate_gamma='sphere', txt=struct+'-6-Log-Optical-BSE.txt')
 
                 # Getting dielectric function spectrum
                 parprint("Starting dielectric function calculation...")
                 # Writing to files
-                bse.get_dielectric_function(direction=0, q_c = [0.0, 0.0, 0.0], eta=Opt_eta,
+                bse.get_dielectric_function(filename=struct+'-6-Result-Optical-BSE_dielec.csv',
+                                            eta=Opt_eta, w_w=np.linspace(Opt_BSE_min_en, Opt_BSE_max_en, Opt_BSE_num_of_data),
+                                            write_eig=struct+'-6-Result-Optical-BSE_eig.dat')
+                # Loading dielectric function spectrum to numpy
+                dielec = genfromtxt(struct+'-6-Result-Optical-BSE_dielec.csv', delimiter=',')
+                # dielec.shape[0] will give us the length of data.
+                c_opt = 29979245800
+                h_opt = 6.58E-16
+                # Initialize arrays
+                opt_n_bse = np.array ([1e-6,]*dielec.shape[0])
+                opt_k_bse = np.array ([1e-6,]*dielec.shape[0])
+                opt_abs_bse = np.array([1e-6,]*dielec.shape[0])
+                opt_ref_bse = np.array([1e-6,]*dielec.shape[0])
+                # Calculation of other optical data
+                for n in range(dielec.shape[0]):
+                    opt_n_bse[n] = np.sqrt((np.sqrt(np.square(dielec[n][1])+np.square(dielec[n][2]))+dielec[n][1])/2.0)
+                    opt_k_bse[n] = np.sqrt((np.sqrt(np.square(dielec[n][1])+np.square(dielec[n][2]))-dielec[n][1])/2.0)
+                    opt_abs_bse[n] = 2*dielec[n][0]*opt_k_bse[n]/(h_opt*c_opt)
+                    opt_ref_bse[n] = (np.square(1-opt_n_bse[n])+np.square(opt_k_bse[n]))/(np.square(1+opt_n_bse[n])+np.square(opt_k_bse[n]))
+                
+                # Saving other data
+                with paropen(struct+'-6-Result-Optical-BSE-AllData.dat', 'w') as f1:
+                    print("Energy(eV) Eps_real Eps_img Refractive_Index Extinction_Index Absorption(1/cm) Reflectivity", end="\n", file=f1)
+                    for n in range(dielec.shape[0]):
+                        print(dielec[n][0], dielec[n][1], dielec[n][2], opt_n_bse[n], opt_k_bse[n], opt_abs_bse[n], opt_ref_bse[n], end="\n", file=f1)
+                    print (end="\n", file=f1)
+                    
+                '''
+                # DIRECTION IS NOT WORKING FOR A WHILE, IN FUTURE THESE LINES CAN BE USED
+                bse.get_dielectric_function(filename=struct+'-6-Result-Optical-BSE_dielec_xdirection.csv',
+                                            q_c = [0.0, 0.0, 0.0], direction=0, eta=Opt_eta,
                                             w_w=np.linspace(Opt_BSE_min_en, Opt_BSE_max_en, Opt_BSE_num_of_data),
-                                            filename=struct+'-6-Result-Optical-BSE_dielec_xdirection.csv',
                                             write_eig=struct+'-6-Result-Optical-BSE_eig_xdirection.dat')
-                bse.get_dielectric_function(direction=1, q_c = [0.0, 0.0, 0.0], eta=Opt_eta,
+                bse.get_dielectric_function(q_c = [0.0, 0.0, 0.0], direction=1, eta=Opt_eta,
                                             w_w=np.linspace(Opt_BSE_min_en, Opt_BSE_max_en, Opt_BSE_num_of_data),
                                             filename=struct+'-6-Result-Optical-BSE_dielec_ydirection.csv',
                                             write_eig=struct+'-6-Result-Optical-BSE_eig_ydirection.dat')
-                bse.get_dielectric_function(direction=2, q_c = [0.0, 0.0, 0.0], eta=Opt_eta,
+                bse.get_dielectric_function(q_c = [0.0, 0.0, 0.0], direction=2, eta=Opt_eta,
                                             w_w=np.linspace(Opt_BSE_min_en, Opt_BSE_max_en, Opt_BSE_num_of_data),
                                             filename=struct+'-6-Result-Optical-BSE_dielec_zdirection.csv',
                                             write_eig=struct+'-6-Result-Optical-BSE_eig_zdirection.dat')
@@ -1307,23 +1333,21 @@ class gpawsolve:
                     for n in range(dielec_z.shape[0]):
                         print(dielec_z[n][0], dielec_z[n][1], dielec_z[n][2], opt_n_bse_z[n], opt_k_bse_z[n], opt_abs_bse_z[n], opt_ref_bse_z[n], end="\n", file=f1)
                     print (end="\n", file=f1)
-
+               '''
+            
             elif Opt_calc_type == 'RPA':
                 parprint('Starting RPA calculations')
-                df = DielectricFunction(calc=struct+'-6-Result-Optical.gpw', 
-                                    frequencies={'type': 'nonlinear', 'domega0': Opt_domega0, 'omega2': Opt_omega2},
-                                    eta=Opt_eta, nblocks=Opt_nblocks,
-                                    ecut=Opt_cut_of_energy)
-                # Writing to files as: omega, nlfc.real, nlfc.imag, lfc.real, lfc.imag 
+                df = DielectricFunction(calc=struct+'-6-Result-Optical.gpw',
+                                        frequencies={'type': 'nonlinear', 'domega0': Opt_domega0, 'omega2': Opt_omega2},
+                                        eta=Opt_eta,
+                                        ecut=Opt_cut_of_energy, txt=struct+'-6-Log-Optical-RPA.txt')
+                # Writing to files as: omega, nlfc.real, nlfc.imag, lfc.real, lfc.imag
                 # Here lfc is local field correction
                 # Getting dielectric function spectrum
                 parprint("Starting dielectric function calculation...")
-                df.get_dielectric_function( direction='x', 
-                                            filename=struct+'-6-Result-Optical-RPA_dielec_xdirection.csv')
-                df.get_dielectric_function( direction='y',
-                                            filename=struct+'-6-Result-Optical-RPA_dielec_ydirection.csv')
-                df.get_dielectric_function( direction='z',
-                                            filename=struct+'-6-Result-Optical-RPA_dielec_zdirection.csv')
+                df.get_dielectric_function(filename=struct+'-6-Result-Optical-BSE_dielec_xdirection.csv')
+                df.get_dielectric_function(direction='y', filename=struct+'-6-Result-Optical-BSE_dielec_ydirection.csv')
+                df.get_dielectric_function(direction='z', filename=struct+'-6-Result-Optical-BSE_dielec_zdirection.csv')
 
                 # Loading dielectric function spectrum to numpy
                 dielec_x = genfromtxt(struct+'-6-Result-Optical-RPA_dielec_xdirection.csv', delimiter=',')
@@ -1924,4 +1948,3 @@ if __name__ == "__main__":
             print(1e-6*sum(energyresult.pkg)," CPU energy consumption in Joules", end="\n", file=f1)
             print(1e-6*sum(energyresult.dram)," DRAM energy consumption in Joules", end="\n", file=f1)
             print(2.77777778e-7*(1e-6*sum(energyresult.dram)+1e-6*sum(energyresult.pkg))," Total energy consumption in kWh", end="\n", file=f1)
-
