@@ -45,7 +45,7 @@ tsp mpirun -np $CORENUMBER gpawsolve.py -i Si-Step1-ground_dos_band.py -g Si_mp-
 echo "Step 2: Optical - RPA"
 tsp gpawsolve.py -i Si-Step2-optical-RPA.py -g Si_mp-149_primitive_Example.cif
 echo "Step 3: Optical - BSE"
-tsp gpawsolve.py -i Si-Step2-optical-BSE.py -g Si_mp-149_primitive_Example.cif
+tsp gpawsolve.py -i Si-Step3-optical-BSE.py -g Si_mp-149_primitive_Example.cif
 
 # Wurtzite ZnO with DFT+U
 echo "Adding: ZnO with DFT+U"
