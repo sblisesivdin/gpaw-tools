@@ -32,6 +32,7 @@ More information about [gpaw-tools idea](about.md), [installation](installation/
 Latest development release: [download (tar.gz)](https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.tar.gz), [download (zip)](https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.zip)
 
 ## News
+* As our lab has had [an institutional website](https://avesis.gazi.edu.tr/arastirma-grubu/lrg/) for the last year, we will close lrgresearch.org and GitHub relations shortly. Therefore, we have moved gpaw-tools and several other repositories of Prof. Lisesivdin to [sblisesivdin.github.io](https://sblisesivdin.github.io). As a result, the legal address of gpaw-tools is now [https://sblisesivdin.github.io/gpaw-tools](https://sblisesivdin.github.io/gpaw-tools). We apologize for any inconvenience this may have caused (January 22, 2025).
 * **[gpaw-tools](development/releasenotes.md#version-2461)** version 24.6.1 released. This is a quick-fix release. Because SPGlib dropped the ASE type Atoms object after version 2.2.0, `gpawsolve.py` started to give an error. ASE will maintain the `get_spacegroup()` function call from now on. With this change, `gpawsolve.py` no longer requires the `spglib` package.
 * **[gpaw-tools](development/releasenotes.md#version-2460)** version 24.6.0 released. This version only works with newer versions of > ASE 3.23.0 and GPAW 24.6.0 (June 5, 2024).
 * **[gpaw-tools](development/releasenotes.md#version-23100)** version 23.10.0 released (October 13, 2023).
