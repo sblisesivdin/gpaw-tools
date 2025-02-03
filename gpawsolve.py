@@ -1866,7 +1866,7 @@ if __name__ == "__main__":
             import ase
             import phonopy
             try:
-                response = requests.get("https://api.github.com/repos/lrgresearch/gpaw-tools/releases/latest", timeout=5)
+                response = requests.get("https://api.github.com/repos/sblisesivdin/gpaw-tools/releases/latest", timeout=5)
                 parprint('-----------------------------------------------------------------------------')
                 parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
                 parprint('  uses GPAW '+gpaw.__version__+', ASE '+ase.__version__+' and PHONOPY '+phonopy.__version__)
@@ -1877,7 +1877,7 @@ if __name__ == "__main__":
                 parprint('You can download the latest STABLE tarball, zipball or DEVELOPMENT zipball:')
                 parprint(response.json()["tarball_url"])
                 parprint(response.json()["zipball_url"])
-                parprint('https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.zip')
+                parprint('https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip')
             except (requests.ConnectionError, requests.Timeout) as exception:
                 parprint('-----------------------------------------------------------------------------')
                 parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
