@@ -9,8 +9,18 @@ parent: development
 
 ### Development version
 
+* n/a
+
+### Version 25.2.0
+
+* `gpaw-tools` is moved to a new repository. All links in the code are corrected.
+* Use new notation in BSE calculations.
+* RPA is working again.
+* BSE calculations are now working without direction. This is a feature downgrade for now.
 * Ignore warnings.
 * A basic installation script for Ubuntu systems is added. Just run it in the first place.
+* Using .fixdensty() in optical calculations.
+* Wrong `ang_mom` variable usage in a loop is corrected.
 
 ### Version 24.6.1
 
