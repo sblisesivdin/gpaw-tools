@@ -13,7 +13,7 @@ title: Home
 
 {: .fs-6 .fw-300 }
 
-[Download now](#download){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/lrgresearch/gpaw-tools){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Download now](#download){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/sblisesivdin/gpaw-tools){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 The `gpaw-tools` package is built on top of the ASE, ASAP3, KIM-API, PHONOPY, and GPAW libraries, which are well-established and widely used in the scientific community. It allows users to simulate the properties of materials, optimize structures, investigate chemical reactions and processes, and perform calculations on systems with many atoms. With `gpaw-tools`, researchers, students, and engineers in various fields, including materials science, chemistry, physics, and engineering, can easily conduct DFT and MD calculations and explore the electronic, optical, and phonon structure of material systems. We are constantly working to improve and expand the capabilities of `gpaw-tools`, and we welcome feedback and contributions from the community.
 
@@ -27,11 +27,12 @@ More information about [gpaw-tools idea](about.md), [installation](installation/
 
 ## Download
 
-**Latest stable release: v24.6.1 [download (tar.gz)](https://github.com/lrgresearch/gpaw-tools/archive/refs/tags/v24.6.1.tar.gz), [download (zip)](https://github.com/lrgresearch/gpaw-tools/archive/refs/tags/v24.6.1.zip)**
+**Latest stable release: v25.2.1 [download (tar.gz)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.2.1.tar.gz), [download (zip)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.2.1.zip)**
 
-Latest development release: [download (tar.gz)](https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.tar.gz), [download (zip)](https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.zip)
+Latest development release: [download (tar.gz)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.tar.gz), [download (zip)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip)
 
 ## News
+* **[gpaw-tools](development/releasenotes.md#version-2521)** version 25.2.1 released. This version is working fine with GPAW 25.1.0. Nearly for a year, optical calculations can not be done due to code changes in GPAW. Now, with this release, optical calculations are working again as possible as they can. There is no v25.2.0. Version v25.2.1 is a minor correction over it.
 * As our lab has had [an institutional website](https://avesis.gazi.edu.tr/arastirma-grubu/lrg/) for the last year, we will close lrgresearch.org and GitHub relations shortly. Therefore, we have moved gpaw-tools and several other repositories of Prof. Lisesivdin to [sblisesivdin.github.io](https://sblisesivdin.github.io). As a result, the legal address of gpaw-tools is now [https://sblisesivdin.github.io/gpaw-tools](https://sblisesivdin.github.io/gpaw-tools). We apologize for any inconvenience this may have caused (January 22, 2025).
 * **[gpaw-tools](development/releasenotes.md#version-2461)** version 24.6.1 released. This is a quick-fix release. Because SPGlib dropped the ASE type Atoms object after version 2.2.0, `gpawsolve.py` started to give an error. ASE will maintain the `get_spacegroup()` function call from now on. With this change, `gpawsolve.py` no longer requires the `spglib` package.
 * **[gpaw-tools](development/releasenotes.md#version-2460)** version 24.6.0 released. This version only works with newer versions of > ASE 3.23.0 and GPAW 24.6.0 (June 5, 2024).
