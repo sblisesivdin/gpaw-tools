@@ -77,7 +77,7 @@ bulk_configuration = Atoms(
 # ///////   YOU DO NOT NEED TO CHANGE ANYTHING BELOW    \\\\\\\
 # -------------------------------------------------------------
 # Version
-__version__ = "v25.2.1"
+__version__ = "v25.2.2b1"
 
 # Start time
 time0 = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
