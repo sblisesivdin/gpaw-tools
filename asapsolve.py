@@ -121,7 +121,7 @@ try:
         import asap3
         import ase
         try:
-            response = requests.get("https://api.github.com/repos/lrgresearch/gpaw-tools/releases/latest", timeout=5)
+            response = requests.get("https://api.github.com/repos/sblisesivdin/gpaw-tools/releases/latest", timeout=5)
             print('-------------------------------------------------------------------------------------------------------')
             print('\033[95mgpaw-tools:\033[0m This is asapsolve.py uses ASAP3 '+asap3.__version__+', and ASE '+ase.__version__)
             print('-------------------------------------------------------------------------------------------------------')
