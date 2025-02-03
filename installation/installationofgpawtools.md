@@ -13,23 +13,23 @@ Before, we need to install `setuptools_scm` seperately. Otherwise it can give an
 
      pip3 install setuptools_scm
  
-Then, starting to installation of `gpaw-tools`, we need to install `spglib`, `docutils`, `requests`, `elastic` and `phonopy` packages and their dependencies. If you used conda to install previous packages, you do not need to run the following commands (If you try to run these two command as a single command you may have receive an error).
+Then, starting to the installation of `gpaw-tools`, we need to install `spglib`, `docutils`, `requests`, `elastic`, and `phonopy` packages and their dependencies. If you used conda to install previous packages, you do not need to run the following commands (If you try to run these two commands as a single command you may have received an error).
 
    
     pip3 install spglib docutils elastic requests phonopy
 
-If you want to use energy consumption measurement feature, install:
+If you want to use the energy consumption measurement feature, install:
 
     pip3 install pyrapl pymongo pandas
 
-Also, lastly, it is good to use a job queue system when you have many inputs to run. GPAW / gpaw-tools can be run with task managers like SLURM. However, if you use your GPAW / gpaw-tools system on your local server/workstation, using Task Spooler is a good idea. It only works on one server for one user. It makes a queue, and run your commands in order. To install tsp command to your Ubuntu system, use:
+Also, lastly, it is good to use a job queue system when you have many inputs to run. GPAW / gpaw-tools can be run with task managers like SLURM. However, if you use your GPAW / gpaw-tools system on your local server/workstation, using Task Spooler is a good idea. It only works on one server for one user. It makes a queue, and runs your commands in order. To install the tsp command to your Ubuntu system, use:
 
     sudo apt install task-spooler
 
-Now, all needed packages are installed and we can continue with installation of `gpaw-tools`. In your home folder (~), let's download the latest development release (you can prefer stable release also, please visit https://www.lrgresearch.org/gpaw-tools/ to get the latest URL)
+Now, all needed packages are installed and we can continue with the installation of `gpaw-tools`. In your home folder (~), let's download the latest development release (you can prefer a stable release also, please visit https://sblisesivdin.github.io/gpaw-tools/ to get the latest URL)
 
     cd ~
-    wget https://github.com/lrgresearch/gpaw-tools/archive/refs/heads/main.zip
+    wget https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip
     unzip main.zip
 
 All files will be extracted to a folder called `gpaw-tools-main`. We need to make this folder to `~/.bashrc` file to system-wide reach.
@@ -42,7 +42,7 @@ Add the following line at the end of your ``~/.bashrc`` file.
 
 After editing ~/.bashrc file quit the current shell session and start a new one (or you can use `source ~/.bashrc` command). 
 
-IMPORTANT NOTE FOR GPAW 23.6.0: The version 23.6.0 of GPAW has an error when you want to make DOS calculations. There is a line missing in `gpaw/dos.py` file. It is already fixed in development version, however, if you are using PIP to install gpaw, you will have this error. You can add that line with a single command. You must run this command only ONCE.
+IMPORTANT NOTE FOR GPAW 23.6.0: The version 23.6.0 of GPAW has an error when you want to make DOS calculations. There is a line missing in `gpaw/dos.py` file. It is already fixed in the development version, however, if you are using PIP to install gpaw, you will have this error. You can add that line with a single command. You must run this command only ONCE.
 {: .text-red-200 }
 
     sed -i "166i\ \ \ \ \ \ \ \ from gpaw.calculator import GPAW" "$(python -m site --user-site)/gpaw/dos.py"
