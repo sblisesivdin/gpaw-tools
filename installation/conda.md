@@ -27,7 +27,7 @@ Then, install GPAW and Elastic packages
 
     $ conda install -c conda-forge gpaw elastic requests phonopy pandas
     
-NOTE: For the energy consumption measurement feature, you can install mongo and pandas packages with conda. However, you must install only pyRAPL with pip in the next step. This workflow and the energy consumption measurement feature is not tested on conda yet. Please submit a better installation solution in this page. Thanks.
+NOTE: For the energy consumption measurement feature, you can install Mongo and Pandas packages with Conda. However, you must install only pyRAPL with pip in the next step. This workflow and the energy consumption measurement feature have not tested on conda yet. Please submit a better installation solution in this page. Thanks.
 {: .text-red-200 }
 
 NOTE: If the user wants to use gpaw-tools versions 23.7.0 and before, GPAW version 22.8.0 must be used. The above command will be `conda install -c conda-forge gpaw=22.8.0 elastic requests`
@@ -35,6 +35,6 @@ NOTE: If the user wants to use gpaw-tools versions 23.7.0 and before, GPAW versi
 
 Lastly, [download and install gpaw-tools](https://www.lrgresearch.org/gpaw-tools/installation/#4-installation-of-gpaw-tools).
 
-NOTE: Sometimes, after this step, `mpirun -np <core_number> command.py` runs `command.py` seperately in a number of `core_number` instances. If you observe this kind of execution, please deactivate `conda deactivate` then remove environment `conda remove --name gpaw-env --all` then create same environment again `conda create --name gpaw-env` then activate it `conda activate gpaw-env` and then install all files again `conda install -c conda-forge gpaw elastic requests`. Problem must be solved. If it is not solved, please open a [new issue](https://github.com/lrgresearch/gpaw-tools/issues/new/choose) about your problem.
+NOTE: Sometimes, after this step, `mpirun -np <core_number> command.py` runs `command.py` separately in several `core_number` instances. If you observe this kind of execution, please deactivate `conda deactivate` then remove environment `conda remove --name gpaw-env --all` then create same environment again `conda create --name gpaw-env` then activate it `conda activate gpaw-env` and then install all files again `conda install -c conda-forge gpaw elastic requests`. The problem must be solved. If it is not solved, please open a [new issue](https://github.com/sblisesivdin/gpaw-tools/issues/new/choose) about your problem.
 {: .text-red-200 }
 
