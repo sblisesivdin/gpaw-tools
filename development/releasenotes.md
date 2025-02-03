@@ -11,6 +11,10 @@ parent: development
 
 * n/a
 
+### Version 25.2.1
+
+* In v25.2.0, we forgot to change the version information in the code. Please use the corrected v25.2.1 version. Sorry for any inconvenience.
+
 ### Version 25.2.0
 
 * `gpaw-tools` is moved to a new repository. All links in the code are corrected.
