@@ -29,7 +29,7 @@ class gg:
         global GW_PPAvar, GW_q0_correctionvar, GW_nblocks_maxvar, Struct, StructLoaded, GW_interpolate_bandvar
         global Ground_calcvar, Phonon_calcvar, Phonon_acoustic_sum_rulevar
         
-        url = 'https://www.lrgresearch.org/gpaw-tools/'
+        url = 'https://sblisesivdin.github.io/gpaw-tools/'
         
         def OpenUrl(url):
             webbrowser.open_new(url)
