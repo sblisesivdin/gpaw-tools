@@ -15,7 +15,7 @@ permalink: /development
 
 ## Contributing
 
-We welcome contributions and hope this guide will make the `gpaw-tools` code repository easier to understand. It is important to mention that the `gpaw-tools` software development is run voluntarily and therefore we need to build a community that can support user questions, attract new users, maintain documentation, write tutorials and develop new features to make this software a useful tool for all users.
+We welcome contributions and hope this guide will make the `gpaw-tools` code repository easier to understand. It is important to mention that the `gpaw-tools` software development is run voluntarily and therefore we need to build a community that can support user questions, attract new users, maintain documentation, write tutorials, and develops new features to make this software a useful tool for all users.
 
 ### Being Respectful
 
@@ -25,28 +25,28 @@ In pull requests and issues, please do not speak in a way that negatively portra
 
 ### Cloning the Source Repository
 
-Before cloning the source repository to your computer, please visit the [installation page](https://www.lrgresearch.org/gpaw-tools/installation/) of `gpaw-tools` to install ASE, GPAW and other all needed packages to your computer. Then, you can clone the source of the `gpaw-tools` from related repository:
-[Main Github repository](https://github.com/lrgresearch/gpaw-tools) by:
+Before cloning the source repository to your computer, please visit the [installation page](https://sblisesivdin.github.io/gpaw-tools/installation/) of `gpaw-tools` to install ASE, GPAW, and other all needed packages to your computer. Then, you can clone the source of the `gpaw-tools` from related repository:
+[Main Github repository](https://github.com/sblisesivdin/gpaw-tools) by:
 
-    git clone https://github.com/lrgresearch/gpaw-tools.git
+    git clone https://github.com/sblisesivdin/gpaw-tools.git
     cd gpaw-tools
 
 ### Questions
 
 We do not have any email-list, IRC channel, Slack room, etc. 
-* For general questions about the project, and all other things, we will use [Discussions](https://github.com/lrgresearch/gpaw-tools/discussions) page of Github repository. 
-* For more technical problems, you are welcome to create an issue on the [Issues](https://github.com/lrgresearch/gpaw-tools/issues) page of Github repository. Posting to the issues page allows community members with the required expertise to answer your question, and the information obtained remains available to other users on the issues page for future usage.
+* For general questions about the project, and all other things, we will use the [Discussions](https://github.com/sblisesivdin/gpaw-tools/discussions) page of the GitHub repository. 
+* For more technical problems, you are welcome to create an issue on the [Issues](https://github.com/sblisesivdin/gpaw-tools/issues) page of the GitHub repository. Posting to the issues page allows community members with the required expertise to answer your question, and the information obtained remains available to other users on the issues page for future usage.
 
 ### Reporting Bugs and Feature Requests
 
 
-If you encounter any bugs, crashes or quirks while using the code, please report it on the [Issues](https://github.com/lrgresearch/gpaw-tools/issues) page with an appropriate tag so that the developers can take care of it immediately. When reporting an issue, please be overly descriptive so we can reproduce it. If possible, provide trackbacks, screenshots and sample files to help us resolve the issue. For reporting a bug, please create an issue with the "Bug report" template.
+If you encounter any bugs, crashes, or quirks while using the code, please report it on the [Issues](https://github.com/sblisesivdin/gpaw-tools/issues) page with an appropriate tag so that the developers can take care of it immediately. When reporting an issue, please be overly descriptive so we can reproduce it. If possible, provide trackbacks, screenshots, and sample files to help us resolve the issue. For reporting a bug, please create an issue with the "Bug report" template.
 
-Please do not hesitate to submit ideas for improvements to the `gpaw-tools` software. To suggest an improvement, please create an [Issue](https://github.com/lrgresearch/gpaw-tools/issues) with the "Feature Request" template. Please use a descriptive and extensive information (links, videos, possible screenshots etc.) to help the developers to implement this functionality.
+Please do not hesitate to submit ideas for improvements to the `gpaw-tools` software. To suggest an improvement, please create an [Issue](https://github.com/sblisesivdin/gpaw-tools/issues) with the "Feature Request" template. Please use descriptive and extensive information (links, videos, possible screenshots, etc.) to help the developers implement this functionality.
 
 ### Contributing New Code
 
-If you have an idea to solve a bug or implementing a new feature, please first create an issue as a bug report/feature request and we can use that issue as a discussion thread to resolve the implementation of the contribution.
+If you have an idea to solve a bug or implement a new feature, please first create an issue as a bug report/feature request and we can use that issue as a discussion thread to resolve the implementation of the contribution.
 
 ### Licensing
 
