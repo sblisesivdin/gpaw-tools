@@ -26,7 +26,7 @@ Also, lastly, it is good to use a job queue system when you have many inputs to 
 
     sudo apt install task-spooler
 
-Now, all needed packages are installed and we can continue with the installation of `gpaw-tools`. In your home folder (~), let's download the latest development release (you can prefer a stable release also, please visit https://sblisesivdin.github.io/gpaw-tools/ to get the latest URL)
+Now, all needed packages are installed and we can continue with the installation of `gpaw-tools`. In your home folder (~), let's download the latest development release (you can prefer a stable release also, please visit [https://sblisesivdin.github.io/gpaw-tools/](https://sblisesivdin.github.io/gpaw-tools/) to get the latest URL)
 
     cd ~
     wget https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip
