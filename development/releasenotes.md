@@ -13,8 +13,8 @@ parent: development
 
 ### Version 25.2.1
 
-* In v25.2.0, we forgot to change the version information in the code. So there is no v.25.2.0 :) Please use the corrected v25.2.1 version. Sorry for any inconvenience.
-* `gpaw-tools` is moved to a new repository. All links in the code are corrected.
+* We forgot to change the version information in the code. So there is no v.25.2.0 :) Please use the corrected v25.2.1 version. Sorry for any inconvenience.
+* `gpaw-tools` is moved to a new repository at [https://github.com/sblisesivdin/gpaw-tools](https://github.com/sblisesivdin/gpaw-tools). All links in the code are corrected.
 * Use new notation in BSE calculations.
 * RPA is working again.
 * BSE calculations are now working without direction. This is a feature downgrade for now.
