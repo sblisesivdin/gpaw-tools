@@ -1837,6 +1837,9 @@ if __name__ == "__main__":
         if args.inputfile is not None:
             configpath = os.path.join(os.getcwd(),args.inputfile)
             sys.path.append(os.getcwd())
+        else:
+            parprint("\033[91mERROR:\033[0m Please use an input file with -i argument.")
+            quit()
 
 
         if args.geometryfile :
