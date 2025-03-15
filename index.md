@@ -3,25 +3,24 @@ layout: default
 nav_order: 1
 title: Home
 ---
-
-![Image](assets/images/banner.png)
-
 # Welcome to *gpaw-tools*
 {: .fs-9 }
 
-`gpaw-tools` is a powerful and user-friendly UI/GUI tool for conducting Density Functional Theory (DFT) and molecular dynamics (MD) calculations. By providing a simple command-line interface and graphical user interface, our goal is to make DFT and MD calculations more accessible and easy to use for individuals and small groups.
+`gpaw-tools` is a powerful and user-friendly tool for running Density Functional Theory (DFT) and molecular dynamics (MD) simulations. It provides both a simple command-line interface and a graphical user interface (GUI), with the goal of making DFT/MD calculations more accessible to individuals and small research groups​. It leverages well-established libraries – **ASE**, **ASAP3**, **KIM-API**, **Phonopy**, and **GPAW** – as its computational backends​. This integration allows users to simulate material properties, optimize structures, investigate chemical reactions, and perform calculations on systems with many atoms​. Researchers and students in fields like materials science, chemistry, and physics can explore electronic, optical, and phonon properties of materials without needing extensive programming expertise​. The tool can also produce useful visual outputs, such as potential energy surfaces, electronic band structures, and density of states plots, as shown in the examples below​
+
+![Image](assets/images/banner.png)
+
+Key features of `gpaw-tools` include a primary solver script for DFT calculations, a quick force-field optimization module for pre-relaxation, several utility scripts for convergence testing, and a simple GUI for easier use​. In practice, this means you can perform common tasks like geometry optimization, equation-of-state calculations, elastic constant calculations, spin-polarized density of states and band structure analysis, phonon spectrum computations, and even basic optical property calculations (RPA/BSE) with relative ease​. The graphical interface further lowers the barrier for new users by allowing basic DFT calculations to be set up and run without manual scripting. `gpaw-tools` is an open-source project (MIT licensed) under active development. It is continually improved with new features and enhancements, and feedback from the community is welcome​. Whether you prefer using the command-line or a GUI, `gpaw-tools` offers a convenient higher-level interface to powerful simulation engines, aiming to streamline computational workflows for material science research.
 
 {: .fs-6 .fw-300 }
 
 [Download now](#download){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/sblisesivdin/gpaw-tools){: .btn .fs-5 .mb-4 .mb-md-0 }
 
-The `gpaw-tools` package is built on top of the ASE, ASAP3, KIM-API, PHONOPY, and GPAW libraries, which are well-established and widely used in the scientific community. It allows users to simulate the properties of materials, optimize structures, investigate chemical reactions and processes, and perform calculations on systems with many atoms. With `gpaw-tools`, researchers, students, and engineers in various fields, including materials science, chemistry, physics, and engineering, can easily conduct DFT and MD calculations and explore the electronic, optical, and phonon structure of material systems. We are constantly working to improve and expand the capabilities of `gpaw-tools`, and we welcome feedback and contributions from the community.
-
 `gpaw-tools` have:
-1. The main solver script `gpawsolver.py` can run in PW or LCAO mode. It can perform structure optimization, equation of state and elastic tensor calculations, and use several different XCs (as well as hybrid XCs) for spin-polarized DOS and band structure calculations, electron densities, phonon calculations, and optical properties (RPA and BSE). In addition to calculations, it can draw DOS and band structures, save all data, and figure in an ordered way.
+1. The main solver script `gpawsolve.py` can run in PW or LCAO mode. It can perform structure optimization, equation of state and elastic tensor calculations, and use several different XCs (as well as hybrid XCs) for spin-polarized DOS and band structure calculations, electron densities, phonon calculations, and optical properties (RPA and BSE). In addition to calculations, it can draw DOS and band structures, save all data, and figure in an ordered way.
 2. A force-field quick optimization script, `asapsolve.py` for MD calculations using ASAP3 and OpenKIM potentials. 
 3. To choose better cut-off energy, lattice parameter, and k-points, there are 4 scripts called `optimize_cutoff.py`, `optimize_kpoints.py`,`optimize_kptsdensity.py` and `optimize_latticeparam.py`.
-4. A simple Graphical User Interface (GUI) for `gpawsolve.py` (and you may say that GUI for GPAW) is called `gg.py`.
+4. A simple Graphical User Interface (GUI) for `gpawsolve.py` is called `gg.py`.
 
 More information about [gpaw-tools idea](about.md), [installation](installation/installation.md), [usage](generalusage.md), and [release notes](development/releasenotes.md) can be found at related pages.
 
