@@ -33,6 +33,7 @@ from ase.parallel import paropen, world, parprint, broadcast
 from gpaw import GPAW, PW, Davidson, FermiDirac, MixerSum, MixerDif, Mixer
 from ase.optimize import QuasiNewton
 from ase.io import read, write
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.eos import calculate_eos
 from ase.units import Bohr, GPa, kJ
 import matplotlib.pyplot as plt
@@ -488,61 +489,172 @@ class gpawsolve:
         with paropen(struct+'-7-Result-Log-Timings.txt', 'a') as f1:
             print('Ground state: ', round((time12-time11),2), end="\n", file=f1)
 
-    def elasticcalc(self, drawfigs = False):
+    def elasticcalc(self, drawfigs=False, strain_n=5, strain_mag=0.01, thickness=None):
         """
-        This method performs elastic property calculations for the given structure using the
-        ground state results. It computes the elastic constants, bulk modulus, shear modulus,
-        and other related properties. The results are saved in appropriate files for further
-        analysis and visualization.
+        Calculate the full elastic constant tensor and derived moduli.
+        - strain_n: Number of strain points (including zero) for each independent strain mode.
+        - strain_mag: Maximum strain magnitude (fractional, e.g., 0.01 for 1% strain).
+        - thickness: Effective thickness for 2D materials (Angstrom).
         """
-
         # -------------------------------------------------------------
         # Step 1.5 - ELASTIC CALCULATION
         # -------------------------------------------------------------
+        
+        # Load the optimized (reference) structure
+        bulk_atoms = self.bulk_configuration
+        ref_calc = GPAW(self.struct + '-1-Result-Ground.gpw')
+        bulk_atoms.set_calculator(ref_calc)
+        parprint('Optimized (reference) structure is loaded.')
+        try:
+            ref_stress = bulk_atoms.get_stress(voigt=False)
+        except Exception as e:
+            raise RuntimeError(f"ERROR: Could not compute reference stress: {e}")
+        parprint(f"Reference Stress Tensor (GPa):\n{ref_stress / GPa}")
 
-        # Start elastic calc
-        time151 = time.time()
-        parprint('Starting elastic tensor calculations (\033[93mWARNING:\033[0mNOT TESTED FEATURE, PLEASE CONTROL THE RESULTS)...')
-        calc = GPAW(struct+'-1-Result-Ground.gpw').fixed_density(txt=struct+'-1.5-Log-Elastic.txt')
-        # Getting space group
-        parprint("Spacegroup:",get_spacegroup(bulk_configuration, symprec=1e-2))
-        # Calculating equation of state
-        parprint('Calculating equation of state...')
-        eos = calculate_eos(bulk_configuration, trajectory=struct+'-1.5-Result-Elastic.traj')
-        v, e, B = eos.fit()
-        # Calculating elastic tensor
-        parprint('Calculating elastic tensor...')
-        Cij, Bij=get_elastic_tensor(bulk_configuration,get_elementary_deformations(bulk_configuration, n=5, d=2))
-        with paropen(struct+'-1.5-Result-Elastic.txt', "w") as fd:
-            print("Elastic calculation results (NOT TESTED FEATURE, PLEASE CONTROL THE RESULTS):", file=fd)
-            print("EoS: Stabilized jellium equation of state (SJEOS)", file=fd)
-            print("Refs: Phys.Rev.B 63, 224115 (2001) and Phys.Rev.B 67, 026103 (2003)", file=fd)
-            print("Elastic constants: Standart elasticity theory calculated by -Elastic- library", file=fd)
-            print("Ref: European Physical Journal B; 15, 2 (2000) 265-268", file=fd)
-            print("-----------------------------------------------------------------------------", file=fd)
-            print("Spacegroup: "+str(get_spacegroup(bulk_configuration, symprec=1e-2)), file=fd)
-            print("B (GPa): "+str(B / kJ * 1.0e24), file=fd)
-            print("e (eV): "+str(e), file=fd)
-            print("v (Ang^3): "+str(v), file=fd)
-            print("Cij (GPa): ",Cij/GPa, file=fd)
-            print("The general ordering of Cij components is (except triclinic): C11,C22,C33,C12,C13,C23,C44,C55,C66,C16,C26,C36,C45.", file=fd)
-        # Finish elastic calc
-        time152 = time.time()
-        # Write timings of calculation
-        with paropen(struct+'-7-Result-Log-Timings.txt', 'a') as f1:
-            print('Elastic calculation: ', round((time152-time151),2), end="\n", file=f1)
+        # --- Define the six independent strain matrices (Voigt components) ---
+        strain_matrices = [
+            np.array([[1, 0, 0],
+                      [0, 0, 0],
+                      [0, 0, 0]]),  # ε_xx
+            np.array([[0, 0, 0],
+                      [0, 1, 0],
+                      [0, 0, 0]]),  # ε_yy
+            np.array([[0, 0, 0],
+                      [0, 0, 0],
+                      [0, 0, 1]]),  # ε_zz
+            np.array([[0, 1, 0],
+                      [1, 0, 0],
+                      [0, 0, 0]]),  # ε_xy
+            np.array([[0, 0, 1],
+                      [0, 0, 0],
+                      [1, 0, 0]]),  # ε_xz
+            np.array([[0, 0, 0],
+                      [0, 0, 1],
+                      [0, 1, 0]])   # ε_yz
+        ]
 
-        # Draw or write the figure
-        if drawfigs == True:
-            # Draw graphs only on master node
-            if world.rank == 0:
-                # Elastic
-                eos.plot(struct+'-1.5-Graph-Elastic-EOS.png', show=True)
+        # Define names for each strain mode (following Voigt notation)
+        strain_names = ['ε_xx', 'ε_yy', 'ε_zz', 'ε_xy', 'ε_xz', 'ε_yz']
+        # --- Cache file for deformed systems ---
+        cache_file = self.struct + '1.5-Result-Elastic-deformations.traj'
+        if os.path.exists(cache_file):
+            parprint("Loading deformed systems from cache.")
+            systems = read(cache_file, index=':')
         else:
-            # Draw graphs only on master node
-            if world.rank == 0:
-                # Elastic
-                eos.plot(struct+'-1.5-Result-Elastic-EOS.png')
+            systems = []
+            # For each strain mode, sample strain_n values linearly from -strain_mag to +strain_mag.
+            for mode, strain in enumerate(strain_matrices):
+                mode_label = strain_names[mode]
+                strain_values = np.linspace(-strain_mag, strain_mag, strain_n)
+                for eps in strain_values:
+                    # If eps is effectively zero, use the reference ground state.
+                    if abs(eps) < 1e-6:
+                        parprint(f"Mode {mode_label}: Using ground-state stress for strain {eps:.4f}")
+                        ref_atoms = bulk_atoms.copy()
+                        # Use the previously computed reference values:
+                        ref_atoms.set_calculator(SinglePointCalculator(ref_atoms, 
+                                                energy=bulk_atoms.get_potential_energy(), 
+                                                stress=ref_stress, 
+                                                forces=bulk_atoms.get_forces()))
+                        systems.append(ref_atoms)
+                        continue
+                    success = False
+                    # Try a series of fallback factors to help convergence.
+                    for factor in [1.0, 0.5, 0.1]:
+                        current_eps = eps * factor
+                        deformed_atoms = bulk_atoms.copy()
+                        strain_tensor = np.eye(3) + current_eps * strain
+                        deformed_atoms.set_cell(deformed_atoms.cell @ strain_tensor, scale_atoms=True)
+            
+                        # Attach a new GPAW calculator for the deformed structure using PBE.
+                        deformed_atoms.set_calculator(GPAW(mode=PW(ecut=Cut_off_energy, force_complex_dtype=True), xc=XC_calc, 
+                                    nbands='200%', setups= Setup_params, 
+                                    parallel={'domain': world.size}, spinpol=Spin_calc, 
+                                    kpts={'size': (Ground_kpts_x, Ground_kpts_y, Ground_kpts_z), 'gamma': Gamma},
+                                    mixer=Mixer_type, txt=struct+'-1.5-Log-Elastic-deformations.txt', charge=Total_charge,
+                                    convergence = Ground_convergence, occupations = Occupation))
+                        try:
+                            deformed_atoms.get_potential_energy()
+                            # Force stress calculation.
+                            deformed_atoms.calc.calculate(deformed_atoms, properties=['stress'])
+                            stress_tensor = deformed_atoms.get_stress(voigt=False)
+                            parprint(f"Mode {mode_label}: Computed stress for strain {eps:.4f} (factor {factor}):\n{stress_tensor}")
+                            systems.append(deformed_atoms)
+                            success = True
+                            break
+                        except Exception as e:
+                            parprint(f"ERROR: Mode {mode_label}: Failed to compute stress for strain {eps:.4f} (factor {factor}): {e}")
+                if not success:
+                    parprint(f"WARNING: Mode {mode_label}: Skipping strain {eps:.4f} for current mode.")
+            # Write deformed systems to cache file so that next time they can be loaded
+            write(cache_file, systems)
+            parprint(f"Deformed systems saved to cache file: {cache_file}")
+
+        expected = len(strain_matrices) * strain_n
+        if len(systems) < 0.5 * expected:
+            raise RuntimeError(f"ERROR: Not enough valid deformations (only {len(systems)} out of {expected}) to compute the elastic tensor.")
+
+        # --- Compute the elastic tensor using the deformed systems ---
+        Cij, fit_info = get_elastic_tensor(bulk_atoms, systems)
+        Cij = np.array(Cij)
+        parprint(f"Cij raw shape: {Cij.shape}")
+        if Cij.size < 36:
+            Cij = reconstruct_full_tensor(Cij, bulk_atoms)
+        elif Cij.size == 36:
+            Cij = Cij.reshape((6,6))
+        else:
+            raise ValueError(f"ERROR: Unexpected Cij size: {Cij.size}. Cannot reshape.")
+        Cij_GPa = Cij / GPa
+
+        # --- 2D vs. 3D handling (unchanged) ---
+        cell_lengths = bulk_atoms.cell.lengths()  # [a, b, c]
+        is2D = False
+        if thickness or (cell_lengths[2] > 3 * max(cell_lengths[0], cell_lengths[1]) and abs(Cij_GPa[2,2]) < 1e-2):
+            is2D = True
+            parprint("2D system is detected.")
+            t_eff = thickness if thickness else cell_lengths[2]
+            t_eff_m = t_eff * 1e-10  # convert Angstrom to meter
+            C2D = Cij_GPa * (t_eff_m * 1e9)  # Convert GPa to N/m
+            C11 = C2D[0, 0]; C22 = C2D[1, 1]; C12 = C2D[0, 1]
+            E2D_x = (C11**2 - C12**2) / C11 if C11 > 0 else 0.0
+            E2D = (E2D_x + ((C22**2 - C12**2) / C22 if C22 > 0 else 0.0)) / 2
+            nu2D = C12 / C11 if C11 != 0 else 0.0
+        else:
+            parprint("2D system is not detected.")
+            Bv = (Cij_GPa[0,0] + Cij_GPa[1,1] + Cij_GPa[2,2] +
+                  2*(Cij_GPa[0,1] + Cij_GPa[0,2] + Cij_GPa[1,2])) / 9.0
+            Gv = ((Cij_GPa[0,0] + Cij_GPa[1,1] + Cij_GPa[2,2]) -
+                  (Cij_GPa[0,1] + Cij_GPa[0,2] + Cij_GPa[1,2]) +
+                  3*(Cij_GPa[3,3] + Cij_GPa[4,4] + Cij_GPa[5,5])) / 15.0
+            try:
+                Sij = np.linalg.inv(Cij_GPa)
+            except np.linalg.LinAlgError:
+                Sij = np.linalg.pinv(Cij_GPa)
+            Br = 1.0 / (Sij[0,0] + Sij[1,1] + Sij[2,2] +
+                        2*(Sij[0,1] + Sij[0,2] + Sij[1,2]))
+            Gr = 15.0 / (4*(Sij[0,0] + Sij[1,1] + Sij[2,2]) -
+                         4*(Sij[0,1] + Sij[0,2] + Sij[1,2]) +
+                         3*(Sij[3,3] + Sij[4,4] + Sij[5,5]))
+            B_hill = 0.5 * (Bv + Br)
+            G_hill = 0.5 * (Gv + Gr)
+            E_hill = (9 * B_hill * G_hill) / (3 * B_hill + G_hill)
+            nu_hill = (3 * B_hill - 2 * G_hill) / (2 * (3 * B_hill + G_hill))
+        
+        with paropen(self.struct + '-1.5-Result-Elastic-AllResults.txt', 'w') as fd:
+            print("Elastic tensor Cij (GPa):", file=fd)
+            print(np.array2string(Cij_GPa, precision=2, floatmode='fixed'), file=fd)
+            if is2D:
+                print(f"Detected 2D material. Effective thickness = {t_eff:.2f} Å.", file=fd)
+                print("In-plane elastic stiffness (N/m):", file=fd)
+                print(np.array2string(C2D, precision=2, floatmode='fixed'), file=fd)
+                print(f"2D (in-plane) Young's modulus: {E2D:.2f} N/m", file=fd)
+                print(f"2D Poisson's ratio (in-plane): {nu2D:.3f}", file=fd)
+            else:
+                print(f"Bulk modulus (Hill avg): {B_hill:.2f} GPa", file=fd)
+                print(f"Shear modulus (Hill avg): {G_hill:.2f} GPa", file=fd)
+                print(f"Young's modulus (Hill avg): {E_hill:.2f} GPa", file=fd)
+                print(f"Poisson's ratio (Hill avg): {nu_hill:.3f}", file=fd)
+
 
     def doscalc(self, drawfigs = False):
         """
@@ -1481,6 +1593,83 @@ class gpawsolve:
         # Write timings of calculation
         with paropen(struct+'-7-Result-Log-Timings.txt', 'a') as f1:
             print('Optical calculation: ', round((time62-time61),2), end="\n", file=f1)
+
+# Elastic related functions
+from ase.spacegroup import get_spacegroup
+import numpy as np
+
+def reconstruct_full_tensor(independent, atoms):
+    """
+    Reconstruct the full 6x6 elastic tensor from the independent elastic constants
+    returned by get_elastic_tensor(), based on the spacegroup determined by ASE.
+    
+    Parameters:
+      independent : NumPy array of independent elastic constants.
+      atoms       : ASE Atoms object.
+      
+    Returns:
+      A 6x6 NumPy array representing the full elastic tensor.
+      
+    Implemented cases:
+      - 3 independent constants: assumed cubic or isotropic, 
+        mapped as:
+            C11  C12  C12   0    0    0
+            C12  C11  C12   0    0    0
+            C12  C12  C11   0    0    0
+             0    0    0   C44   0    0
+             0    0    0    0   C44   0
+             0    0    0    0    0   (C11-C12)/2
+      - 5 independent constants: assumed hexagonal, mapped as:
+            C11  C12  C13   0    0    0
+            C12  C11  C13   0    0    0
+            C13  C13  C33   0    0    0
+             0    0    0   C44   0    0
+             0    0    0    0   C44   0
+             0    0    0    0    0   (C11-C12)/2
+      - 21 independent constants: assumed triclinic; these are
+        taken as the lower triangular elements (in order) and then mirrored.
+    """
+    sg = get_spacegroup(atoms, symprec=1e-2)
+    symbol = sg.symbol
+    parprint(f"[DEBUG] Reconstructing tensor from {independent.size} independent constants; spacegroup: {symbol}")
+    if independent.size == 3:
+        # Assume cubic or isotropic system.
+        C11, C12, C44 = independent
+        full = np.array([
+            [C11, C12, C12, 0,   0,   0],
+            [C12, C11, C12, 0,   0,   0],
+            [C12, C12, C11, 0,   0,   0],
+            [0,   0,   0,   C44, 0,   0],
+            [0,   0,   0,   0,   C44, 0],
+            [0,   0,   0,   0,   0,   (C11-C12)/2]
+        ])
+        return full
+    elif independent.size == 5:
+        # Assume hexagonal symmetry.
+        C11, C12, C13, C33, C44 = independent
+        C66 = (C11 - C12) / 2
+        full = np.array([
+            [C11, C12, C13, 0,   0,   0],
+            [C12, C11, C13, 0,   0,   0],
+            [C13, C13, C33, 0,   0,   0],
+            [0,   0,   0,   C44, 0,   0],
+            [0,   0,   0,   0,   C44, 0],
+            [0,   0,   0,   0,   0,   C66]
+        ])
+        return full
+    elif independent.size == 21:
+        full = np.zeros((6,6))
+        idx = 0
+        for i in range(6):
+            for j in range(i+1):
+                full[i,j] = independent[idx]
+                idx += 1
+        # Mirror the lower triangle to the upper triangle.
+        full = full + full.T - np.diag(np.diag(full))
+        return full
+    else:
+        raise ValueError("Reconstruction for symmetry with {} independent constants is not implemented.".format(independent.size))
+
 
 # Phonon related functions
 # The remaining functions related to phonon calculations in this file are MIT-licensed by (C) 2020 Michael Lamparski
