@@ -9,7 +9,8 @@ parent: development
 
 ### Development version
 
-* n/a
+* A major change in `elasticcalc()`. Now gpawsolve.py has a working general elastic calculation function!
+* `gpawsolve.py` is now giving an error message for running without input.
 
 ### Version 25.2.1
 
