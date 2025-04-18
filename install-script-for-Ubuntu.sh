@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define environment and paths
-ENV_NAME="gpaw24_6env"
+ENV_NAME="gpaw25_2env"
 INSTALL_DIR="$HOME/$ENV_NAME"
 GPAW_SETUP_DIR="$HOME/.gpaw/gpaw-setups"
 USERNAME=$(whoami)
