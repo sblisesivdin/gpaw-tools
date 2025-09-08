@@ -65,7 +65,14 @@ Then install gpaw
 Use `gpaw info` to see installation information. However, PAW datasets are not installed yet. To install them, first create a directory under `~/.gpaw` and then install PAW datasets.
 
     (gpawenv) $ mkdir ~/.gpaw/gpaw-setups
+
+for older GPAWs:
+
     (gpawenv) $ gpaw install-data ~/.gpaw/gpaw-setups/
+
+for GPAW v25.7.0 and later:
+
+    (gpawenv) $ gpaw install-data --gpaw ~/.gpaw/gpaw-setups/
 
 ## Installation of ASAP and KIM for Quick Optimization
 
