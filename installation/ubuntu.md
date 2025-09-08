@@ -8,16 +8,16 @@ parent: installation
 
 # Ubuntu Linux installation
 
-After [installing Ubuntu on your PC](https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview), you just need to update and upgrade, before continuing:
+After [installing Ubuntu on your PC](https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview), you just need to update and upgrade before continuing:
 
     sudo apt update
     sudo apt upgrade
     
 ## Installation of ASE and GPAW
 
-After preparing your Linux system, you must have `ase` and `gpaw` codes on your computer. You can find more information about installation of [ASE](https://wiki.fysik.dtu.dk/ase/install.html) and [GPAW](https://wiki.fysik.dtu.dk/gpaw/install.html) from their related sites.
+After preparing your Linux system, you must have `ase` and `gpaw` codes on your computer. You can find more information about the installation of [ASE](https://wiki.fysik.dtu.dk/ase/install.html) and [GPAW](https://wiki.fysik.dtu.dk/gpaw/install.html) from their related sites.
 
-You need Tk library for GUI, unzip for file unzipping and for further package installations, we need PIP installer
+You need the Tk library for GUI, unzip for file unzipping, and for further package installations, we need the PIP installer
 
     sudo apt install python3-tk python3-pip unzip python-is-python3
 
@@ -38,7 +38,7 @@ Add the following line at the end of your ``~/.bashrc`` file.
     export PATH=/home/YOURUSERNAME/.local/bin:$PATH
     
 
-After editing ~/.bashrc file quit the current shell session and start a new one (or you can use `source ~/.bashrc` command). Then continue,
+After editing the ~/.bashrc file, quit the current shell session and start a new one (or you can use the `source ~/.bashrc` command). Then continue,
 
     sudo apt install python3-dev libopenblas-dev libxc-dev libscalapack-mpi-dev libfftw3-dev
 
@@ -64,10 +64,17 @@ Then install gpaw
 NOTE: If the user wants to use gpaw-tools versions 23.7.0 and before, GPAW version 22.8.0 must be used. The above command will be `pip3 install --upgrade --user gpaw==22.8.0`
 {: .text-red-200 }
 
-Use `gpaw info` to see information about installation. However, PAW-datasets are not installed yet. To install it, firstly create a directory under `~/.gpaw` then install PAW datasets
+Use `gpaw info` to see installation information. However, PAW-datasets are not installed yet. To install it, firstly create a directory under `~/.gpaw`, then install PAW datasets
 
     mkdir ~/.gpaw/gpaw-setups
+
+for older GPAWs:
+
     gpaw install-data ~/.gpaw/gpaw-setups/
+
+for GPAW v25.7.0 and later:
+
+    $ gpaw install-data --gpaw ~/.gpaw/gpaw-setups/
 
 ## Installation of ASAP and KIM for Quick Optimization
 
