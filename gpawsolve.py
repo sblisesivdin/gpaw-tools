@@ -1219,7 +1219,7 @@ class gpawsolve:
         phonon.generate_displacements(distance=Phonon_displacement)
         with paropen(struct+'-5-Log-Phonon-Phonopy.txt', 'a') as f2:
             print("[Phonopy] Atomic displacements:", end="\n", file=f2)
-            disps = phonon.get_displacements()
+            disps = phonon.displacements
             for d in disps:
                 print("[Phonopy] %d %s" % (d[0], d[1:]), end="\n", file=f2)
 
@@ -1243,7 +1243,7 @@ class gpawsolve:
             with paropen(struct+'-5-Log-Phonon-Phonopy.txt', 'a') as f2:
                 print('Computing FCs',end="\n", file=f2)
                 #os.makedirs('force-sets', exist_ok=True)
-            supercells = list(phonon.get_supercells_with_displacements())
+            supercells = list(phonon.supercells_with_displacements)
             fnames = [struct+'5-Results-sc-{:04}.npy'.format(i) for i in range(len(supercells))]
             set_of_forces = [
                 load_or_compute_force(fname, calc, supercell)
@@ -1256,7 +1256,7 @@ class gpawsolve:
                 phonon.symmetrize_force_constants()
             with paropen(struct+'-5-Log-Phonon-Phonopy.txt', 'a') as f2:
                 print('Writing FCs to {!r}'.format(phonon_path), end="\n", file=f2)
-            np.save(phonon_path, phonon.get_force_constants())
+            np.save(phonon_path, phonon.force_constants)
             #shutil.rmtree('force-sets')
 
         with paropen(struct+'-5-Log-Phonon-Phonopy.txt', 'a') as f2:
@@ -1266,12 +1266,54 @@ class gpawsolve:
                 print("[Phonopy] %3d: %10.5f THz" %  (i + 1, freq), end="\n", file=f2) # THz
 
             # DOS
-            phonon.set_mesh([21, 21, 21])
-            phonon.set_total_DOS(tetrahedron_method=True)
+            print("[Phonopy] Initializing mesh [21, 21, 21]...", end="\n", file=f2)
+            phonon.init_mesh([21, 21, 21])
+            print("[Phonopy] Running total DOS calculation...", end="\n", file=f2)
+            phonon.run_total_dos()
+            print("[Phonopy] DOS calculation completed. Type of total_dos:", type(phonon.total_dos), end="\n", file=f2)
+            if phonon.total_dos is not None:
+                dos_array = np.array(phonon.total_dos)
+                print("[Phonopy] DOS array shape:", dos_array.shape, "ndim:", dos_array.ndim, end="\n", file=f2)
             print('', end="\n", file=f2)
             print("[Phonopy] Phonon DOS:", end="\n", file=f2)
-            for omega, dos in np.array(phonon.get_total_DOS()).T:
-                print("%15.7f%15.7f" % (omega, dos), end="\n", file=f2)
+            
+            # Check if total_dos is properly calculated and has the expected structure
+            try:
+                if phonon.total_dos is not None:
+                    # Check if total_dos is a TotalDos object (new Phonopy format)
+                    if hasattr(phonon.total_dos, 'frequency_points') and hasattr(phonon.total_dos, 'dos'):
+                        frequencies = phonon.total_dos.frequency_points
+                        dos_values = phonon.total_dos.dos
+                        print("[Phonopy] Found TotalDos object with %d frequency points" % len(frequencies), end="\n", file=f2)
+                        for omega, dos in zip(frequencies, dos_values):
+                            print("%15.7f%15.7f" % (omega, dos), end="\n", file=f2)
+                    # Check if total_dos is a tuple (freq, dos) as in older Phonopy versions
+                    elif isinstance(phonon.total_dos, (tuple, list)) and len(phonon.total_dos) == 2:
+                        frequencies, dos_values = phonon.total_dos
+                        freq_array = np.array(frequencies)
+                        dos_array = np.array(dos_values)
+                        if freq_array.ndim == 1 and dos_array.ndim == 1 and len(freq_array) == len(dos_array):
+                            for omega, dos in zip(freq_array, dos_array):
+                                print("%15.7f%15.7f" % (omega, dos), end="\n", file=f2)
+                        else:
+                            print("[Phonopy] Warning: DOS frequency/values arrays have incompatible shapes", end="\n", file=f2)
+                            print("[Phonopy] freq shape: %s, dos shape: %s" % (freq_array.shape, dos_array.shape), end="\n", file=f2)
+                    else:
+                        # Try the old method in case the format is different
+                        dos_array = np.array(phonon.total_dos)
+                        print("[Phonopy] DOS array shape:", dos_array.shape, "ndim:", dos_array.ndim, end="\n", file=f2)
+                        if dos_array.ndim >= 2:  # Check if it's at least 2D
+                            for omega, dos in dos_array.T:
+                                print("%15.7f%15.7f" % (omega, dos), end="\n", file=f2)
+                        else:
+                            print("[Phonopy] Warning: DOS data has unexpected structure (ndim=%d)" % dos_array.ndim, end="\n", file=f2)
+                            print("[Phonopy] DOS calculation may have failed or incomplete", end="\n", file=f2)
+                            print("[Phonopy] Available attributes: %s" % [attr for attr in dir(phonon.total_dos) if not attr.startswith('_')], end="\n", file=f2)
+                else:
+                    print("[Phonopy] Warning: DOS data is None, calculation may have failed", end="\n", file=f2)
+            except Exception as e:
+                print("[Phonopy] Error processing DOS data: %s" % str(e), end="\n", file=f2)
+                print("[Phonopy] Skipping DOS output to log file", end="\n", file=f2)
 
         qpoints, labels, connections = path
         phonon.run_band_structure(qpoints, path_connections=connections, labels=labels)
@@ -1701,7 +1743,7 @@ def get_band_path(atoms, path_str, npoints, path_frac=None, labels=None):
     return qpoints, labels, connections
 
 def run_gpaw_all(calc, phonon):
-    return [ run_gpaw(calc, supercell) for supercell in phonon.get_supercells_with_displacements() ]
+    return [ run_gpaw(calc, supercell) for supercell in phonon.supercells_with_displacements ]
 
 def run_gpaw(calc, cell):
     cell = convert_atoms_to_ase(cell)
@@ -1745,8 +1787,7 @@ def convert_atoms_to_phonopy(atoms):
     return PhonopyAtoms(
         symbols=atoms.get_chemical_symbols(),
         scaled_positions=atoms.get_scaled_positions(),
-        cell=atoms.get_cell(),
-        pbc=True
+        cell=atoms.get_cell()
     )
 
 
