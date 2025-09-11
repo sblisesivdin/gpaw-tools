@@ -9,7 +9,7 @@ parent: development
 
 ### Development version
 
-* n/a
+* Phonopy calculations are now restored.
 
 ### Version 25.4.0
 
