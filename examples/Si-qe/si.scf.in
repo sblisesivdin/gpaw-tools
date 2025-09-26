@@ -1,0 +1,28 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'silicon',
+  outdir = './tmp'
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 2,
+  ntyp = 1,
+  ecutwfc = 45.0,
+  occupations = 'smearing',
+  smearing = 'mp',
+  degauss = 0.02
+/
+&ELECTRONS
+  conv_thr = 1.0d-8
+/
+ATOMIC_SPECIES
+ Si 28.0855 Si.pbe-n-kjpaw_psl.1.0.0.UPF
+ATOMIC_POSITIONS crystal
+ Si 0.000000 0.000000 0.000000
+ Si 0.250000 0.250000 0.250000
+CELL_PARAMETERS angstrom
+ 0.000000 2.715474 2.715474
+ 2.715474 0.000000 2.715474
+ 2.715474 2.715474 0.000000
+K_POINTS automatic
+ 4 4 4 0 0 0
