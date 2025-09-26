@@ -9,7 +9,13 @@ parent: development
 
 ### Development version
 
-* Phonopy calculations are now restored.
+* `asapsolve.py` can run with multiple temperatures, multiple frictions, and time steps now.
+* "examples/ASAP3-Example" is renewed for the new features.
+* A basic Quantum Espresso (QE) to gpaw-tools converter script is added.
+* A basic VASP to gpaw-tools converter script is added.
+* "examples/Si-qe" example is added for `qeconverter.py` script
+* "examples/Si-vasp" example is added for `vaspconverter.py` script
+* Phonopy calculations were giving errors. Fixed.
 
 ### Version 25.4.0
 
