@@ -9,6 +9,7 @@ parent: development
 
 ### Development version
 
+* Many corrections done in `gg.py`. It has become outdated for a while. There are many fixes now. They make gg.py run smoothly. Its chronic "stuck while running the simulation" problem is solved now.
 * `asapsolve.py` can run with multiple temperatures, multiple frictions, and time steps now.
 * "examples/ASAP3-Example" is renewed for the new features.
 * A basic Quantum Espresso (QE) to gpaw-tools converter script is added.
