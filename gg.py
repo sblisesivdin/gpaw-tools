@@ -293,6 +293,13 @@ class gg:
                 self.Ground_kpts_yttk.insert('0', '1')
                 self.Ground_kpts_zttk.delete('0', 'end')
                 self.Ground_kpts_zttk.insert('0', '1')
+
+            if 'Ground_kpts_density' in config.__dict__.keys():
+                self.Ground_kpts_densityttk.delete('0', 'end')
+                self.Ground_kpts_densityttk.insert('0', config.Ground_kpts_density)
+            else:
+                self.Ground_kpts_densityttk.delete('0', 'end')
+                self.Ground_kpts_densityttk.insert('0', 'None')
                 
             # Grid points
             if 'Ground_gpts_x' in config.__dict__.keys():
@@ -309,6 +316,13 @@ class gg:
                 self.Ground_gpts_yttk.insert('0', '1')
                 self.Ground_gpts_zttk.delete('0', 'end')
                 self.Ground_gpts_zttk.insert('0', '1')
+
+            if 'Ground_gpts_density' in config.__dict__.keys():
+                self.Ground_gpts_densityttk.delete('0', 'end')
+                self.Ground_gpts_densityttk.insert('0', config.Ground_gpts_density)
+            else:
+                self.Ground_gpts_densityttk.delete('0', 'end')
+                self.Ground_gpts_densityttk.insert('0', 'None')
 
             # Gamma
             if 'Gamma' in config.__dict__.keys():
@@ -868,10 +882,18 @@ class gg:
                 print("Ground_kpts_x = "+ str(self.Ground_kpts_xttk.get()), end="\n", file=f1)
                 print("Ground_kpts_y = "+ str(self.Ground_kpts_yttk.get()), end="\n", file=f1)
                 print("Ground_kpts_z = "+ str(self.Ground_kpts_zttk.get()), end="\n", file=f1)
+                ground_kpts_density = self.Ground_kpts_densityttk.get().strip()
+                if ground_kpts_density == '':
+                    ground_kpts_density = 'None'
+                print("Ground_kpts_density = "+ ground_kpts_density, end="\n", file=f1)
                 # Grid points
                 print("Ground_gpts_x = "+ str(self.Ground_gpts_xttk.get()), end="\n", file=f1)
                 print("Ground_gpts_y = "+ str(self.Ground_gpts_yttk.get()), end="\n", file=f1)
                 print("Ground_gpts_z = "+ str(self.Ground_gpts_zttk.get()), end="\n", file=f1)
+                ground_gpts_density = self.Ground_gpts_densityttk.get().strip()
+                if ground_gpts_density == '':
+                    ground_gpts_density = 'None'
+                print("Ground_gpts_density = "+ ground_gpts_density, end="\n", file=f1)
                 # Gamma
                 print("Gamma = "+ str(Gammavar.get()), end="\n", file=f1)
                 # Band_path
@@ -1260,6 +1282,18 @@ class gg:
         self.frame8.configure(height='200', width='200')
         self.frame8.pack(side='top')
 
+        # K-point density (optional)
+        self.frameGround_kpts_density = ttk.Frame(self.labelframe2)
+        self.labelGround_kpts_density = ttk.Label(self.frameGround_kpts_density)
+        self.labelGround_kpts_density.configure(text='K-point density (A^-1)')
+        self.labelGround_kpts_density.pack(side='left')
+        self.Ground_kpts_densityttk = ttk.Entry(self.frameGround_kpts_density)
+        self.Ground_kpts_densityttk.delete('0', 'end')
+        self.Ground_kpts_densityttk.insert('0', 'None')
+        self.Ground_kpts_densityttk.pack(side='top')
+        self.frameGround_kpts_density.configure(height='200', width='200')
+        self.frameGround_kpts_density.pack(side='top')
+
         # K-points
         self.frame9 = ttk.Frame(self.labelframe2)
         self.label7 = ttk.Label(self.frame9)
@@ -1305,6 +1339,18 @@ class gg:
         self.Ground_gpts_zttk.pack(side='top')
         self.frame29.configure(height='200', width='200')
         self.frame29.pack(side='top')
+
+        # Real-space grid density (optional)
+        self.frameGround_gpts_density = ttk.Frame(self.labelframe2)
+        self.labelGround_gpts_density = ttk.Label(self.frameGround_gpts_density)
+        self.labelGround_gpts_density.configure(text='Grid density (A) for LCAO')
+        self.labelGround_gpts_density.pack(side='left')
+        self.Ground_gpts_densityttk = ttk.Entry(self.frameGround_gpts_density)
+        self.Ground_gpts_densityttk.delete('0', 'end')
+        self.Ground_gpts_densityttk.insert('0', 'None')
+        self.Ground_gpts_densityttk.pack(side='top')
+        self.frameGround_gpts_density.configure(height='200', width='200')
+        self.frameGround_gpts_density.pack(side='top')
         
         # Gamma
         self.frame23 = ttk.Frame(self.labelframe2)
