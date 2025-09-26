@@ -2064,6 +2064,31 @@ if __name__ == "__main__":
     Outdirname = ''
 
     try:
+        if args.version == True:
+            import gpaw
+            import ase
+            import phonopy
+            try:
+                response = requests.get("https://api.github.com/repos/sblisesivdin/gpaw-tools/releases/latest", timeout=5)
+                parprint('-----------------------------------------------------------------------------')
+                parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
+                parprint('  uses GPAW '+gpaw.__version__+', ASE '+ase.__version__+' and PHONOPY '+phonopy.__version__)
+                parprint('-----------------------------------------------------------------------------')
+                parprint('The latest STABLE release is '+response.json()["tag_name"]+',')
+                parprint('which is released at '+response.json()["published_at"]+'.')
+                parprint('-----------------------------------------------------------------------------')
+                parprint('You can download the latest STABLE tarball, zipball or DEVELOPMENT zipball:')
+                parprint(response.json()["tarball_url"])
+                parprint(response.json()["zipball_url"])
+                parprint('https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip')
+            except (requests.ConnectionError, requests.Timeout) as exception:
+                parprint('-----------------------------------------------------------------------------')
+                parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
+                parprint('  uses GPAW '+gpaw.__version__+', ASE '+ase.__version__+' and PHONOPY '+phonopy.__version__)
+                parprint('-----------------------------------------------------------------------------')
+                parprint('No internet connection available.')
+            quit()
+
         if args.inputfile is not None:
             configpath = os.path.join(os.getcwd(),args.inputfile)
             sys.path.append(os.getcwd())
@@ -2094,31 +2119,6 @@ if __name__ == "__main__":
                 parprint("More information about the error:")
                 parprint(sys.exc_info()[0])
                 quit()
-        if args.version == True:
-            import gpaw
-            import ase
-            import phonopy
-            try:
-                response = requests.get("https://api.github.com/repos/sblisesivdin/gpaw-tools/releases/latest", timeout=5)
-                parprint('-----------------------------------------------------------------------------')
-                parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
-                parprint('  uses GPAW '+gpaw.__version__+', ASE '+ase.__version__+' and PHONOPY '+phonopy.__version__)
-                parprint('-----------------------------------------------------------------------------')
-                parprint('The latest STABLE release is '+response.json()["tag_name"]+',')
-                parprint('which is released at '+response.json()["published_at"]+'.')
-                parprint('-----------------------------------------------------------------------------')
-                parprint('You can download the latest STABLE tarball, zipball or DEVELOPMENT zipball:')
-                parprint(response.json()["tarball_url"])
-                parprint(response.json()["zipball_url"])
-                parprint('https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip')
-            except (requests.ConnectionError, requests.Timeout) as exception:
-                parprint('-----------------------------------------------------------------------------')
-                parprint('\033[95mgpaw-tools:\033[0m Version information: '+str(__version__))
-                parprint('  uses GPAW '+gpaw.__version__+', ASE '+ase.__version__+' and PHONOPY '+phonopy.__version__)
-                parprint('-----------------------------------------------------------------------------')
-                parprint('No internet connection available.')
-            quit()
-
 
     except getopt.error as err:
         # output error, and return with an error code
