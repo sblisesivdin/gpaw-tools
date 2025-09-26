@@ -5,13 +5,14 @@ gg.py: GUI for gpawsolve.py
 Usage: $ gg.py
 '''
 import os, io, sys
-from shlex import split
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog, BooleanVar, StringVar
 import pathlib
 import subprocess
 import shutil
+import threading
+import queue
 from ase.visualize import view
 from ase.io import read, write
 import webbrowser
@@ -809,14 +810,160 @@ class gg:
             else:
                 self.Energy_minttk.delete('0', 'end')
                 self.Energy_minttk.insert('0', '-5')
+
+            # Localisation
+            if 'Localisation' in config.__dict__.keys():
+                loc_value = config.Localisation
+                if loc_value in self.Localisationttk['values']:
+                    self.Localisationttk.set(loc_value)
+                else:
+                    self.Localisationttk.set('en_UK')
+            else:
+                self.Localisationttk.set('en_UK')
             
             # Text for textbox
             self.text1.insert(tk.END, "Configuration loaded, please continue with Input parameters tab \n")
 
+        self._calculation_proc = None
+        self._calculation_queue = None
+        self._calculation_log_file = None
+        self._calculation_final_paths = None
+
+        def finalize_calculation():
+            '''Finalize calculation, collect outputs and reset state.'''
+            info = self._calculation_final_paths or {}
+            if self._calculation_log_file is not None:
+                try:
+                    self._calculation_log_file.flush()
+                except Exception:
+                    pass
+                try:
+                    self._calculation_log_file.close()
+                except Exception:
+                    pass
+            self._calculation_log_file = None
+
+            proc = self._calculation_proc
+            if proc is not None and proc.stdout:
+                try:
+                    proc.stdout.close()
+                except Exception:
+                    pass
+            self._calculation_proc = None
+            self._calculation_queue = None
+            self._calculation_final_paths = None
+
+            self.button3.configure(state='normal')
+
+            basename_local = info.get('basename') if isinstance(info, dict) else None
+            configname_local = info.get('configname') if isinstance(info, dict) else None
+            basepath_local = info.get('basepath') if isinstance(info, dict) else None
+            log_dir = info.get('log_dir') if isinstance(info, dict) else None
+
+            png_dir_message = None
+
+            if log_dir and basename_local:
+                final_cif = os.path.join(log_dir, basename_local)+"-Final.cif"
+                try:
+                    asestruct = read(final_cif, index='-1')
+                except Exception as exc:
+                    self.text1.insert(tk.END, f"Could not read final structure: {exc}\n")
+                else:
+                    try:
+                        write(os.path.join(log_dir, basename_local)+'_FinalStructure.png', asestruct)
+                        png_dir_message = log_dir
+                    except Exception as exc:
+                        self.text1.insert(tk.END, f"Failed to save final structure image: {exc}\n")
+
+                if basepath_local:
+                    initial_img = os.path.join(basepath_local, basename_local+'_InitialStructure.png')
+                    if os.path.exists(initial_img):
+                        try:
+                            shutil.move(initial_img, os.path.join(log_dir, basename_local+'_InitialStructure.png'))
+                            png_dir_message = log_dir
+                        except Exception as exc:
+                            self.text1.insert(tk.END, f"Failed to move initial structure image: {exc}\n")
+
+            if configname_local and os.path.exists(configname_local):
+                try:
+                    os.remove(configname_local)
+                except Exception as exc:
+                    self.text1.insert(tk.END, f"Unable to remove temporary configuration file: {exc}\n")
+
+            if png_dir_message:
+                self.text1.insert(tk.END, f"Initial and Final Structure PNG files are saved to {png_dir_message} folder \n")
+            self.text1.insert(tk.END, "Calculation finished... \n")
+            self.text1.insert(tk.END, "STDOUT is also saved as log file. \n")
+            self.text1.see(tk.END)
+
+        def poll_calculation_output():
+            '''Poll queued stdout lines from gpawsolve process.''' 
+            if self._calculation_queue is None:
+                return
+
+            flushed = False
+            while True:
+                try:
+                    line = self._calculation_queue.get_nowait()
+                except queue.Empty:
+                    break
+
+                if line is None:
+                    finalize_calculation()
+                    return
+
+                self.text4.insert(tk.END, line)
+                self.text4.see(tk.END)
+
+                if self._calculation_log_file is not None:
+                    try:
+                        self._calculation_log_file.write(line)
+                        flushed = True
+                    except Exception as exc:
+                        self.text1.insert(tk.END, f"Failed to write log line: {exc}\n")
+                        self._calculation_log_file = None
+
+            if flushed and self._calculation_log_file is not None:
+                try:
+                    self._calculation_log_file.flush()
+                except Exception:
+                    pass
+
+            if self._calculation_queue is not None:
+                self.toplevel1.after(100, poll_calculation_output)
+
         def onCalculate():
             '''Calculate button's behaviour'''
-            #Firstly, lets save all options to config file.
-            with open(configname, 'w') as f1:
+            if self._calculation_proc is not None and self._calculation_queue is not None:
+                if self._calculation_proc.poll() is None:
+                    self.text1.insert(tk.END, "A calculation is already running. Please wait for it to finish. \n")
+                    self.text1.see(tk.END)
+                    return
+
+            missing_inputs = []
+            if 'configname' not in globals():
+                missing_inputs.append('input (PY)')
+            if any(name not in globals() for name in ['textfilenamepath', 'basename', 'basepath']):
+                missing_inputs.append('geometry (CIF)')
+            if missing_inputs:
+                prompt = "Please load the " + ' and '.join(missing_inputs) + " file(s) before starting a calculation.\n"
+                self.text1.insert(tk.END, prompt)
+                self.text1.see(tk.END)
+                return
+
+            if not StructLoaded:
+                self.text1.insert(tk.END, "Please load a geometry (CIF) file before starting a calculation. \n")
+                self.text1.see(tk.END)
+                return
+
+            try:
+                config_handle = open(configname, 'w')
+            except Exception as exc:
+                self.text1.insert(tk.END, f"Failed to open configuration file for writing: {exc}\n")
+                self.text1.see(tk.END)
+                return
+
+            with config_handle as f1:
                 print("import numpy as np", end="\n", file=f1)
 
                 # ---------Ground------------
@@ -953,7 +1100,7 @@ class gg:
                 # Displacement
                 print("Phonon_displacement = "+ str(self.Phonon_displacementttk.get()), end="\n", file=f1)
                 # Dispersion path
-                print("Phonon_path = "+ str(self.Phonon_pathttk.get()), end="\n", file=f1)
+                print("Phonon_path = '"+ str(self.Phonon_pathttk.get())+"'", end="\n", file=f1)
                 # Number of points
                 print("Phonon_npoints = "+ str(self.Phonon_npointsttk.get()), end="\n", file=f1)
                 # Acoustic sum rule
@@ -1027,7 +1174,7 @@ class gg:
                 # Opt_omega2
                 print("Opt_omega2 = "+ str(self.Opt_omega2ttk.get()), end="\n", file=f1)
                 # Opt_cut_of_energy
-                print("Opt_cut_of_energy = "+ str(self.Opt_cut_of_energy.get()), end="\n", file=f1)
+                print("Opt_cut_of_energy = "+ str(self.Opt_cut_of_energyttk.get()), end="\n", file=f1)
                 
                 # ------------Other------------
                 # This feature is not used by gpawsolve.py, this is only usable for gg.py
@@ -1036,35 +1183,95 @@ class gg:
                 print("Energy_max = "+ str(self.Energy_maxttk.get()), end="\n", file=f1)
                 # Energy_min
                 print("Energy_min = "+ str(self.Energy_minttk.get()), end="\n", file=f1)
+                print("Localisation = '"+ str(self.Localisationttk.get())+"'", end="\n", file=f1)
+            cmd_parts = [
+                'mpirun',
+                '-np',
+                str(self.MPI_coresttk.get()),
+                'gpawsolve.py',
+            ]
 
-            # Running the gpawsolve.py. Firstly, let's define a command, then proceed it.
-            gpawcommand = 'mpirun -np '+str(self.MPI_coresttk.get())+' gpawsolve.py -d -i '+str(configname)+' -g '+str(textfilenamepath)
-            proc = subprocess.Popen(split(gpawcommand), shell=False, stdout = subprocess.PIPE)
+            if self.draw_figs_var.get():
+                cmd_parts.append('-d')
+            if self.energy_measure_var.get():
+                cmd_parts.append('-e')
+
+            cmd_parts.extend(['-i', str(configname), '-g', str(textfilenamepath)])
+            gpawcommand = ' '.join(cmd_parts)
+
+            output_dir = os.path.join(os.path.dirname(configname), basename)
+            try:
+                os.makedirs(output_dir, exist_ok=True)
+            except Exception as exc:
+                self.text1.insert(tk.END, f"Failed to prepare output directory: {exc}\n")
+                self.text1.see(tk.END)
+                try:
+                    os.remove(configname)
+                except Exception:
+                    pass
+                return
+
+            log_path = os.path.join(output_dir, basename)+"-STDOUT-Log.txt"
+            try:
+                self._calculation_log_file = open(log_path, 'w', encoding='utf-8')
+            except Exception as exc:
+                self.text1.insert(tk.END, f"Failed to open log file: {exc}\n")
+                self.text1.see(tk.END)
+                try:
+                    os.remove(configname)
+                except Exception:
+                    pass
+                return
+
+            try:
+                self._calculation_proc = subprocess.Popen(
+                    cmd_parts,
+                    shell=False,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    encoding='utf-8',
+                    bufsize=1,
+                )
+            except Exception as exc:
+                self.text1.insert(tk.END, f"Failed to start gpawsolve.py: {exc}\n")
+                self.text1.see(tk.END)
+                try:
+                    self._calculation_log_file.close()
+                except Exception:
+                    pass
+                self._calculation_log_file = None
+                try:
+                    os.remove(configname)
+                except Exception:
+                    pass
+                return
+
+            self._calculation_queue = queue.Queue()
+            self._calculation_final_paths = {
+                'log_dir': output_dir,
+                'log_path': log_path,
+                'basename': basename,
+                'configname': configname,
+                'basepath': basepath,
+            }
+
+            def _enqueue_output(proc, log_queue):
+                try:
+                    for line in proc.stdout:
+                        log_queue.put(line)
+                finally:
+                    log_queue.put(None)
+
+            threading.Thread(target=_enqueue_output, args=(self._calculation_proc, self._calculation_queue), daemon=True).start()
+
+            self.button3.configure(state='disabled')
             self.text1.insert(tk.END, "Command executed: "+gpawcommand+" \n")
+            self.text1.see(tk.END)
 
-            # Save stdout as a log
-            #sys.path.append(os.path.abspath(configname))
-            #config = __import__(pathlib.Path(configname).stem)
-            
-            #Looking for working directory
-            if not os.path.isdir(os.path.join(os.path.dirname(configname), basename)):
-                os.makedirs(os.path.join(os.path.dirname(configname), basename), exist_ok=True)
-            
-            with open(os.path.join(os.path.join(os.path.dirname(configname), basename), basename)+"-STDOUT-Log.txt", 'w') as f2:
-                for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):  # or another encoding
-                    self.text4.insert(tk.END, line)
-                    print(line, end="\n", file=f2)
-                self.text1.insert(tk.END, "Calculation finished... \n")
-            self.text1.insert(tk.END, "STDOUT is also saved as log file. \n")
-
-            # Read final cif file and save it as png:
-            # /home/sblisesivdin/gpaw-tools-main/Cr2O_mp-1206821_primitive/Cr2O_mp-1206821_primitive-STDOUT-Log.txt
-            asestruct = read(os.path.join(os.path.join(os.path.dirname(configname), basename), basename)+"-Final.cif", index='-1')
-            write(os.path.join(os.path.join(os.path.dirname(configname), basename), basename)+'_FinalStructure.png', asestruct),
-            
-            shutil.move(os.path.join(basepath, basename)+'_InitialStructure.png', os.path.join(os.path.join(os.path.dirname(configname), basename), basename+'_InitialStructure.png'))
-            os.remove(configname)
-            self.text1.insert(tk.END, "Initial and Final Structure PNG files are saved to "+os.path.dirname(configname)+"/"+basename+" folder \n")
+            self.text4.delete('1.0', tk.END)
+            self.text4.insert(tk.END, 'gpawsolve.py stdout log: \n')
+            poll_calculation_output()
 
         def onASEload():
             '''When the user click on the structure image'''
@@ -1807,8 +2014,8 @@ class gg:
         # Acoustic_sum_rule
         self.frameAcoustic_sum_rule = ttk.Frame(self.Phononframe)
         self.Acoustic_sum_rulettk = ttk.Checkbutton(self.frameAcoustic_sum_rule)
-        Acoustic_sum_rulevar = BooleanVar()
-        self.Acoustic_sum_rulettk.configure(variable = Acoustic_sum_rulevar, onvalue=True, offvalue=False, text='Acoustic sum rule')
+        Phonon_acoustic_sum_rulevar = BooleanVar()
+        self.Acoustic_sum_rulettk.configure(variable = Phonon_acoustic_sum_rulevar, onvalue=True, offvalue=False, text='Acoustic sum rule')
         self.Acoustic_sum_rulettk.pack(side='top')
         self.frameAcoustic_sum_rule.configure(height='200', width='200')
         self.frameAcoustic_sum_rule.pack(side='top')
@@ -1990,6 +2197,19 @@ class gg:
         self.Energy_minttk.pack(side='top')
         self.frameEnergy_min.configure(height='200', width='200')
         self.frameEnergy_min.pack(side='top')
+
+        # Localisation
+        self.frameLocalisation = ttk.Frame(self.labelframe5)
+        self.labelLocalisation = ttk.Label(self.frameLocalisation)
+        self.labelLocalisation.configure(text='Localisation (language)')
+        self.labelLocalisation.pack(side='left')
+        localisation_values = ('en_UK', 'tr_TR', 'de_DE', 'fr_FR', 'ru_RU', 'zh_CN', 'ko_KR', 'ja_JP')
+        self.Localisationttk = ttk.Combobox(self.frameLocalisation)
+        self.Localisationttk.configure(values=localisation_values, state='readonly')
+        self.Localisationttk.set('en_UK')
+        self.Localisationttk.pack(side='top')
+        self.frameLocalisation.configure(height='200', width='200')
+        self.frameLocalisation.pack(side='top')
         # End labelframe5 -------------------------------------------
         
         self.notebookUpper.add(self.frame4, state='normal', text='Input Parameters')
@@ -2008,7 +2228,30 @@ class gg:
         self.MPI_coresttk.pack(side='top')
         self.frame25.configure(height='200', width='200')
         self.frame25.pack(side='top')
-        
+
+        # Command options
+        self.draw_figs_var = BooleanVar(value=True)
+        self.draw_figs_check = ttk.Checkbutton(
+            self.frame3,
+            text='Draw figures (-d flag)',
+            variable=self.draw_figs_var,
+            onvalue=True,
+            offvalue=False,
+            takefocus=False,
+        )
+        self.draw_figs_check.pack(side='top')
+
+        self.energy_measure_var = BooleanVar(value=False)
+        self.energy_measure_check = ttk.Checkbutton(
+            self.frame3,
+            text='Measure energy consumption (-e flag)',
+            variable=self.energy_measure_var,
+            onvalue=True,
+            offvalue=False,
+            takefocus=False,
+        )
+        self.energy_measure_check.pack(side='top')
+
         # Start calculation
         self.frame26 = ttk.Frame(self.frame3)
         self.button3 = ttk.Button(self.frame26)
