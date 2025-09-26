@@ -213,6 +213,14 @@ class gg:
             else:
                 self.Dampingttk.delete('0', 'end')
                 self.Dampingttk.insert('0', '1.0')
+
+            # Hydrostatic pressure
+            if 'Hydrostatic_pressure' in config.__dict__.keys():
+                self.Hydrostatic_pressurettk.delete('0', 'end')
+                self.Hydrostatic_pressurettk.insert('0', config.Hydrostatic_pressure)
+            else:
+                self.Hydrostatic_pressurettk.delete('0', 'end')
+                self.Hydrostatic_pressurettk.insert('0', '0.0')
                         
             # Fix_symmetry    
             if 'Fix_symmetry' in config.__dict__.keys():
@@ -846,6 +854,8 @@ class gg:
                 print("Alpha = "+ str(self.Alphattk.get()), end="\n", file=f1)
                 # Damping
                 print("Damping = "+ str(self.Dampingttk.get()), end="\n", file=f1)
+                # Hydrostatic pressure
+                print("Hydrostatic_pressure = "+ str(self.Hydrostatic_pressurettk.get()), end="\n", file=f1)
                 #Fix_symmetry
                 print("Fix_symmetry = "+ str(Fix_symmetryvar.get()), end="\n", file=f1)
                 # Cell relaxation
@@ -1207,6 +1217,18 @@ class gg:
         self.Dampingttk.pack(side='top')
         self.frameDamping.configure(height='200', width='200')
         self.frameDamping.pack(side='top')
+
+        # Hydrostatic pressure
+        self.frameHydrostatic = ttk.Frame(self.labelframe1)
+        self.labelHydrostatic = ttk.Label(self.frameHydrostatic)
+        self.labelHydrostatic.configure(text='Hydrostatic pressure (GPa)')
+        self.labelHydrostatic.pack(side='left')
+        self.Hydrostatic_pressurettk = ttk.Entry(self.frameHydrostatic)
+        self.Hydrostatic_pressurettk.delete('0', 'end')
+        self.Hydrostatic_pressurettk.insert('0', '0.0')
+        self.Hydrostatic_pressurettk.pack(side='top')
+        self.frameHydrostatic.configure(height='200', width='200')
+        self.frameHydrostatic.pack(side='top')
         
         # Fix symmetry during optimization?
         self.frameFix_symmetry = ttk.Frame(self.labelframe1)
