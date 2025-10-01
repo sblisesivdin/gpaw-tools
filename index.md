@@ -21,16 +21,18 @@ Key features of `gpaw-tools` include a primary solver script for DFT calculation
 2. A force-field quick optimization script, `asapsolve.py`, for MD calculations using ASAP3 and OpenKIM potentials. 
 3. To choose better cut-off energy, lattice parameter, and k-points, there are 4 scripts called `optimize_cutoff.py`, `optimize_kpoints.py`,`optimize_kptsdensity.py`, and `optimize_latticeparam.py`.
 4. A simple Graphical User Interface (GUI) for `gpawsolve.py` is called `gg.py`.
+5. Simple input file conversion scripts for VASP and QE input files.
 
 More information about [gpaw-tools idea](about.md), [installation](installation/installation.md), [usage](generalusage.md), and [release notes](development/releasenotes.md) can be found at related pages.
 
 ## Download
 
-**Latest stable release: v25.4.0 [download (tar.gz)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.4.0.tar.gz), [download (zip)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.4.0.zip)**
+**Latest stable release: v25.10.0 [download (tar.gz)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.10.0.tar.gz), [download (zip)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/tags/v25.10.0.zip)**
 
 Latest development release: [download (tar.gz)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.tar.gz), [download (zip)](https://github.com/sblisesivdin/gpaw-tools/archive/refs/heads/main.zip)
 
 ## News
+* **[gpaw-tools](development/releasenotes.md#version-25100)** version 25.10.0 released. There are many fixes. Phonon calculations, `gg.py` were broken. They are all fixed. For MD calculations, `asapsolve.py` has new features. New input file conversion scripts for VASP and QE input files are added in this release.
 * **[gpaw-tools](development/releasenotes.md#version-2540)** version 25.4.0 released. This version has a rewritten elastic calculation part. Now it can calculate elastic calculations of bulk and 2D structures successfully.
 * **[gpaw-tools](development/releasenotes.md#version-2521)** version 25.2.1 released. This version is working fine with GPAW 25.1.0. For nearly a year, optical calculations have not been done due to code changes in GPAW. Now, with this release, optical calculations are working as as possible they can. There is no v25.2.0. Version v25.2.1 is a minor correction over it.
 * As our lab has had [an institutional website](https://avesis.gazi.edu.tr/arastirma-grubu/lrg/) for the last year, we will close lrgresearch.org and GitHub relations shortly. Therefore, we have moved gpaw-tools and several other repositories of Prof. Lisesivdin to [sblisesivdin.github.io](https://sblisesivdin.github.io). As a result, the legal address of gpaw-tools is now [https://sblisesivdin.github.io/gpaw-tools](https://sblisesivdin.github.io/gpaw-tools). We apologize for any inconvenience this may have caused (January 22, 2025).
