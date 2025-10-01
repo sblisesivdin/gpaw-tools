@@ -9,6 +9,10 @@ parent: development
 
 ### Development version
 
+* n/a
+
+### Version 25.10.0
+
 * The -v and -h arguments of `gpawsolve.py` were not working. Fixed.
 * Many corrections done in `gg.py`. It has become outdated for a while. There are many fixes now. They make gg.py run smoothly. Its chronic "stuck while running the simulation" problem is solved now.
 * `asapsolve.py` can run with multiple temperatures, multiple frictions, and time steps now.
