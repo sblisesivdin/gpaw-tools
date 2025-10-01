@@ -2034,7 +2034,7 @@ if __name__ == "__main__":
     # ------------------ End of Localisation Tables --------------------------
     
     # Version
-    __version__ = "v25.4.0"
+    __version__ = "v25.10.0"
 
     parser = ArgumentParser(prog ='gpawtools.py', description=Description, formatter_class=RawFormatter)
     parser.add_argument("-i", "--input", dest = "inputfile", help="Use input file for calculation variables (also you can insert geometry)")
