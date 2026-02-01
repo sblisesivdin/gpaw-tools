@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/en/latest/)**!
+> The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet).
+> Please visit the new repository at **[https://github.com/sblisesivdin/nanoworks](https://github.com/sblisesivdin/nanoworks)** or website at **[https://nanoworks.readthedocs.io/en/latest/](https://nanoworks.readthedocs.io/en/latest/)**.
+
 # gpaw-tools
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Issues:](https://img.shields.io/github/issues/sblisesivdin/gpaw-tools)](https://github.com/sblisesivdin/gpaw-tools/issues)
