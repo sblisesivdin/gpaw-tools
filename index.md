@@ -8,8 +8,11 @@ title: Home
 
 
 > **IMPORTANT NOTE:**{: .text-red-200 }
+> 
 > **gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**!{: .text-red-200 }
+>
 > The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries,{: .text-red-200 }
+>
 > including ASAP3, Phonopy, > Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet).{: .text-red-200 }
 >
 > **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**{: .text-red-200 }
