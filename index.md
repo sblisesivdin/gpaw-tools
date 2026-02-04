@@ -7,7 +7,9 @@ title: Home
 {: .fs-9 }
 
 
-**IMPORTANT NOTE: gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**! The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet). **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**{: .text-red-200 }
+**IMPORTANT NOTE:** 
+**gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**! The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet). **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**
+{: .text-red-200 }
 
 `gpaw-tools` is a powerful and user-friendly tool for running Density Functional Theory (DFT) and molecular dynamics (MD) simulations. It provides both a simple command-line interface and a graphical user interface (GUI), aiming to make DFT/MD calculations more accessible to individuals and small research groups. It leverages well-established libraries – **ASE**, **ASAP3**, **Elastic**, **KIM-API**, **Phonopy**, and **GPAW** – as its computational backends​. This integration allows users to simulate material properties, optimize structures, investigate chemical reactions, and perform calculations on systems with many atoms. Researchers and students in fields such as materials science, chemistry, and physics can explore the electronic, optical, and phonon properties of materials without requiring extensive programming expertise. The tool can also produce useful visual outputs, such as potential energy surfaces, electronic band structures, and density of states plots, as shown in the examples below​
 
