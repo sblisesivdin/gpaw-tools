@@ -7,6 +7,10 @@ parent: installation
 
 # Conda installation
 
+**IMPORTANT NOTE:** 
+**gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**! The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet). **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**
+{: .text-red-200 }
+
 The best and the easiest way to install ASE/GPAW/Elastic system with gpaw-tools is a conda installation. **However, sometimes GPAW can run up to 20 times slower with conda installation. Please keep this in mind.** Download and install the miniconda. You can say ‘yes’ or ‘no’ to initialization after installing it:
 
     $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh

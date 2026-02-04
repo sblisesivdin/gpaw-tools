@@ -7,6 +7,10 @@ parent: installation
 
 # Installation on WSL
 
+**IMPORTANT NOTE:** 
+**gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**! The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet). **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**
+{: .text-red-200 }
+
 ## Installation on a Windows 10 system (with WSL1)
 This installation note explains how to install WSL1 and other required tools to study gpaw-tools on a Windows 10 system. WSLg is coming by default with Windows 11, and the installation note for Windows 11 explains similar things, but using WSLg. If you are using Windows 11, please continue from here.
 We are suggesting Ubuntu 20.04 LTS version for *gpaw-tools* studies.

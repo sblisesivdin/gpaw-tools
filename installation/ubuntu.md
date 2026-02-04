@@ -8,6 +8,10 @@ parent: installation
 
 # Ubuntu Linux installation
 
+**IMPORTANT NOTE:** 
+**gpaw-tools** has evolved and is now called **[Nanoworks](https://nanoworks.readthedocs.io/)**! The **gpaw-tools** project began as a script that utilized only ASE and GPAW. Over the course of four years, it evolved into a comprehensive suite leveraging multiple libraries, including ASAP3, Phonopy, Elastic, OpenKIM, and now modern Machine Learning Potentials (MACE, CHGNet, SevenNet). **Please use [Nanoworks](https://nanoworks.readthedocs.io/) for your further studies.**
+{: .text-red-200 }
+
 After [installing Ubuntu on your PC](https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview), you just need to update and upgrade before continuing:
 
     sudo apt update
